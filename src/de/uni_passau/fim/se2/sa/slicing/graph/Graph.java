@@ -2,6 +2,7 @@ package de.uni_passau.fim.se2.sa.slicing.graph;
 
 import com.google.errorprone.annotations.Var;
 import de.uni_passau.fim.se2.sa.slicing.cfg.CFGExtractor;
+import de.uni_passau.fim.se2.sa.slicing.cfg.Node;
 import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -69,7 +70,18 @@ public abstract class Graph {
    * @return The reverse graph
    */
   protected ProgramGraph reverseGraph(ProgramGraph pGraph) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    ProgramGraph reversedGraph = new ProgramGraph();
+
+    for (Node node : pGraph.getNodes()) {
+      reversedGraph.addNode(node);
+    }
+
+    for (Node node : pGraph.getNodes()) {
+      for (Node successor : pGraph.getSuccessors(node)) {
+        reversedGraph.addEdge(successor, node);
+      }
+    }
+
+    return reversedGraph;
   }
 }
