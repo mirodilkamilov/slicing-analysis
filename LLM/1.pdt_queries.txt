@@ -1,0 +1,143 @@
+Q:
+I'm building Post Dominator Tree. For that I correctly reversed the origanl CFG. But, as the origanal CFG is not sorted, my reversed CFG is not sorted either (even though all edges correctly reversed). Here's the example below of my reversed CFG, after calling reversedCFG.getNodes() method. While builiding the PDT, I think I should have sorted nodes right?
+
+result = {Collections$UnmodifiableSet@1491}  size = 25
+ 0 = {Node@1534} ""LABEL1  line number: -1""
+ 1 = {Node@1535} ""LINENUMBER 52  line number: 5""
+ 2 = {Node@1536} ""LDC3  line number: 5""
+ 3 = {Node@1537} ""ASTORE4  line number: 5""
+ 4 = {Node@1538} ""LABEL5  line number: 5""
+ 5 = {Node@1539} ""LINENUMBER 66  line number: 6""
+ 6 = {Node@1540} ""ICONST_07  line number: 6""
+ 7 = {Node@1541} ""ISTORE8  line number: 6""
+ 8 = {Node@1542} ""LABEL9  line number: 6""
+ 9 = {Node@1543} ""LINENUMBER 710  line number: 7""
+ 10 = {Node@1544} ""ILOAD11  line number: 7""
+ 11 = {Node@1545} ""ICONST_212  line number: 7""
+ 12 = {Node@1546} ""IREM13  line number: 7""
+ 13 = {Node@1547} ""IFEQ14  line number: 7""
+ 14 = {Node@1548} ""LABEL15  line number: 7""
+ 15 = {Node@1549} ""LABEL16  line number: 8""
+ 16 = {Node@1550} ""LINENUMBER 1017  line number: 10""
+ 17 = {Node@1551} ""FRAME18  line number: 10""
+ 18 = {Node@1552} ""ILOAD19  line number: 10""
+ 19 = {Node@1553} ""IRETURN20  line number: 10""
+ 20 = {Node@1554} ""LINENUMBER 821  line number: 8""
+ 21 = {Node@1555} ""ICONST_122  line number: 8""
+ 22 = {Node@1556} ""ISTORE23  line number: 8""
+ 23 = {Node@1557} ""Entry""
+ 24 = {Node@1558} ""Exit""
+
+A:
+Yes, you are right — **for building the Post-Dominator Tree (PDT)** using classical algorithms like Lengauer-Tarjan, you usually need to process nodes in a certain order, often **reverse post-order (RPO)** of the CFG.
+
+In the case of a reversed CFG (to compute post-dominators), you still need to compute **post-order** (or reverse post-order) traversal of the reversed graph before building the tree.
+
+---
+
+### Why does node order matter?
+
+* The dominator tree (and post-dominator tree) algorithms assume a specific traversal order (usually RPO) for correct computation of semi-dominators and immediate dominators.
+* If you pass an unsorted set (like from `getNodes()`), the algorithm may behave unpredictably.
+
+---
+
+### What you should do:
+
+1. **Perform a DFS** on the reversed CFG starting from the reversed "Exit" node (which corresponds to the "Entry" in your reversed CFG).
+
+2. **Record post-order of visited nodes.**
+
+3. Use **reverse post-order** of that list to process nodes in the algorithm.
+
+---
+
+### Pseudocode Example:
+
+```java
+List<Node> postOrder = new ArrayList<>();
+Set<Node> visited = new HashSet<>();
+
+void dfs(Node node) {
+    if (!visited.add(node)) return;
+    for (Node succ : node.getSuccessors()) {
+        dfs(succ);
+    }
+    postOrder.add(node);
+}
+
+// Start from reversed "Exit" node in reversed CFG (which is Entry in original)
+dfs(reversedCFG.getExitNode());
+
+// Reverse post-order for dominator algorithm
+Collections.reverse(postOrder);
+```
+
+---
+
+### In summary:
+
+* ✅ Use DFS to collect nodes in post-order
+* ✅ Reverse it before building PDT
+* ✅ Do **not** rely on arbitrary iteration order of `getNodes()`
+
+If you'd like, I can help you write a DFS with post-order collection tailored to your CFG structure.
+
+
+Q:
+Write for me the sorting part only
+
+A:
+Sure! Here's a typical **DFS-based reverse post-order collection** for your reversed CFG:
+
+```java
+public List<Node> computeReversePostOrder(ProgramGraph reversedCFG, Node startNode) {
+    List<Node> postOrder = new ArrayList<>();
+    Set<Node> visited = new HashSet<>();
+    Deque<Node> stack = new ArrayDeque<>();
+
+    stack.push(startNode);
+
+    while (!stack.isEmpty()) {
+        Node node = stack.pop();
+        if (!visited.add(node)) {
+            continue;
+        }
+
+        // Post-order insertion happens after visiting all successors,
+        // so we temporarily push a marker after children.
+        postOrder.add(node);
+
+        for (Node successor : reversedCFG.getSuccessors(node)) {
+            if (!visited.contains(successor)) {
+                stack.push(successor);
+            }
+        }
+    }
+
+    // Reverse to get reverse post-order (RPO)
+    Collections.reverse(postOrder);
+    return postOrder;
+}
+```
+
+---
+
+### Usage:
+
+```java
+List<Node> sortedNodes = computeReversePostOrder(reversedCFG, reversedCFG.getExitNode());
+```
+
+---
+
+### Notes:
+
+* This uses **iterative DFS** for stack safety.
+* You can switch to recursive DFS if your graphs are small.
+* The reverse post-order ensures correct processing order for most dominator algorithms.
+
+---
+
+If you want it to mimic classical DFS exactly with correct post-ordering using a marker approach, let me know!
+
