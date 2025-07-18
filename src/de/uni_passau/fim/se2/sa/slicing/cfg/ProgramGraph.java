@@ -1,17 +1,12 @@
 package de.uni_passau.fim.se2.sa.slicing.cfg;
 
 import com.google.errorprone.annotations.Var;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 import org.objectweb.asm.tree.LineNumberNode;
+
+import java.util.*;
 
 /** Represents a graph structure. */
 public class ProgramGraph {
@@ -89,6 +84,25 @@ public class ProgramGraph {
     return graph.vertexSet();
   }
 
+  public Set<DefaultEdge> getEdges() {
+    return graph.edgeSet();
+  }
+
+  public boolean isEdgeReversedInOtherGraph(DefaultEdge edge, ProgramGraph otherGraph) {
+    Node source = graph.getEdgeSource(edge);
+    Node target = graph.getEdgeTarget(edge);
+
+    return otherGraph.getSuccessors(target).contains(source);
+  }
+
+  public Node getEdgeSource(DefaultEdge edge) {
+    return graph.getEdgeSource(edge);
+  }
+
+  public Node getEdgeTarget(DefaultEdge edge) {
+    return graph.getEdgeTarget(edge);
+  }
+
   /**
    * Provides the entry node—the node with no predecessors.
    *
@@ -129,6 +143,27 @@ public class ProgramGraph {
     }
     sb.append("}");
     return sb.toString();
+  }
+
+  public Collection<Node> getTransitivePredecessorsUntilAncestor(Node pNode, Node pAncestor) {
+    return transitivePredecessorsUntilAncestor(pNode, pAncestor, new LinkedHashSet<>());
+  }
+
+  private Collection<Node> transitivePredecessorsUntilAncestor(Node pNode, Node pAncestor, Set<Node> pDoneSet) {
+    Collection<Node> predecessors = new LinkedHashSet<>();
+    predecessors.add(pNode);
+    for (Node node : getPredecessors(pNode)) {
+      if (!pDoneSet.contains(node)) {
+        predecessors.add(node);
+        pDoneSet.add(node);
+
+        if (node.equals(pAncestor)) {
+          return predecessors;
+        }
+        predecessors.addAll(transitivePredecessorsUntilAncestor(node, pAncestor, pDoneSet));
+      }
+    }
+    return predecessors;
   }
 
   /**

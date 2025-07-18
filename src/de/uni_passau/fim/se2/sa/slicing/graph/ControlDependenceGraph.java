@@ -1,17 +1,26 @@
 package de.uni_passau.fim.se2.sa.slicing.graph;
 
+import de.uni_passau.fim.se2.sa.slicing.cfg.Node;
 import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
+import org.jgrapht.graph.DefaultEdge;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 public class ControlDependenceGraph extends Graph {
+  private final PostDominatorTree pdt;
 
   ControlDependenceGraph(ClassNode pClassNode, MethodNode pMethodNode) {
     super(pClassNode, pMethodNode);
+    pdt = new PostDominatorTree(pClassNode, pMethodNode);
   }
 
-  ControlDependenceGraph(ProgramGraph pCFG) {
+  ControlDependenceGraph(ProgramGraph pCFG, PostDominatorTree pdt) {
     super(pCFG);
+    this.pdt = pdt;
   }
 
   /**
@@ -24,7 +33,31 @@ public class ControlDependenceGraph extends Graph {
    */
   @Override
   public ProgramGraph computeResult() {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    ProgramGraph pPDT = pdt.computeResult();
+    ProgramGraph pCDG = new ProgramGraph();
+    Set<DefaultEdge> allEdges = cfg.getEdges();
+    Set<DefaultEdge> cfgEdgesNotInPdt = new HashSet<>();
+
+    for (DefaultEdge edge : allEdges) {
+      if (!cfg.isEdgeReversedInOtherGraph(edge, pPDT)) {
+        cfgEdgesNotInPdt.add(edge);
+      }
+    }
+
+    for (DefaultEdge edge : cfgEdgesNotInPdt) {
+      Node source = cfg.getEdgeSource(edge);
+      Node target = cfg.getEdgeTarget(edge);
+      Node leastCommonAncestor = pPDT.getLeastCommonAncestor(source, target);
+
+      // TODO: there might be two predecessors and two leastCommonAncestors (while visiting upwards)
+      Collection<Node> visitedNodes = pPDT.getTransitivePredecessorsUntilAncestor(target, leastCommonAncestor);
+      pCDG.addNode(source);
+      for (Node n : visitedNodes) {
+        pCDG.addNode(n);
+        pCDG.addEdge(source, n);
+      }
+    }
+
+    return pCDG;
   }
 }
