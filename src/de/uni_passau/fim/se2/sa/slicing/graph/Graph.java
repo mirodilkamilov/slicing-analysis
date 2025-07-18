@@ -82,6 +82,7 @@ public abstract class Graph {
       }
     }
 
+    pGraph.getExit().ifPresent(reversedGraph::setEntry);
     return reversedGraph;
   }
 }

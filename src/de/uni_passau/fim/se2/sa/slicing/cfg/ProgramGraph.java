@@ -14,6 +14,9 @@ public class ProgramGraph {
   // A facade class to store graphs as DirectedMultiGraphs using the JGraphT framework.
   private final Graph<Node, DefaultEdge> graph;
 
+  private Node entryNode = null;
+  private Node exitNode = null;
+
   public ProgramGraph() {
     Node.sNextId = 1;
     graph =
@@ -23,6 +26,23 @@ public class ProgramGraph {
             .weighted(false)
             .edgeClass(DefaultEdge.class)
             .buildGraph();
+  }
+
+  /**
+   * Provides the entry node—the node with no predecessors.
+   *
+   * <p>Assumes that there is only one such node in the graph.
+   *
+   * @return The entry {@link Node} of the graph
+   */
+  public Optional<Node> getEntry() {
+    if (entryNode != null) return Optional.of(entryNode);
+
+    return graph.vertexSet().stream().filter(n -> graph.incomingEdgesOf(n).isEmpty()).findFirst();
+  }
+
+  public void setEntry(Node node) {
+    this.entryNode = node;
   }
 
   /**
@@ -104,17 +124,6 @@ public class ProgramGraph {
   }
 
   /**
-   * Provides the entry node—the node with no predecessors.
-   *
-   * <p>Assumes that there is only one such node in the graph.
-   *
-   * @return The entry {@link Node} of the graph
-   */
-  public Optional<Node> getEntry() {
-    return graph.vertexSet().stream().filter(n -> graph.incomingEdgesOf(n).isEmpty()).findFirst();
-  }
-
-  /**
    * Provides the exit node—the node with no successors.
    *
    * <p>Assumes that there is only one such node in the graph.
@@ -122,7 +131,13 @@ public class ProgramGraph {
    * @return The exit {@link Node} of the graph
    */
   public Optional<Node> getExit() {
+    if (exitNode != null) return Optional.of(exitNode);
+
     return graph.vertexSet().stream().filter(n -> graph.outgoingEdgesOf(n).isEmpty()).findFirst();
+  }
+
+  public void setExit(Node node) {
+    this.exitNode = node;
   }
 
   /**
