@@ -14,9 +14,6 @@ public class ProgramGraph {
   // A facade class to store graphs as DirectedMultiGraphs using the JGraphT framework.
   private final Graph<Node, DefaultEdge> graph;
 
-  private Node entryNode = null;
-  private Node exitNode = null;
-
   public ProgramGraph() {
     Node.sNextId = 1;
     graph =
@@ -36,13 +33,7 @@ public class ProgramGraph {
    * @return The entry {@link Node} of the graph
    */
   public Optional<Node> getEntry() {
-    if (entryNode != null) return Optional.of(entryNode);
-
     return graph.vertexSet().stream().filter(n -> graph.incomingEdgesOf(n).isEmpty()).findFirst();
-  }
-
-  public void setEntry(Node node) {
-    this.entryNode = node;
   }
 
   /**
@@ -131,13 +122,7 @@ public class ProgramGraph {
    * @return The exit {@link Node} of the graph
    */
   public Optional<Node> getExit() {
-    if (exitNode != null) return Optional.of(exitNode);
-
     return graph.vertexSet().stream().filter(n -> graph.outgoingEdgesOf(n).isEmpty()).findFirst();
-  }
-
-  public void setExit(Node node) {
-    this.exitNode = node;
   }
 
   /**
