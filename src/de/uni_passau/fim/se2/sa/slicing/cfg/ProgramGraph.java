@@ -149,9 +149,13 @@ public class ProgramGraph {
     return transitivePredecessorsUntilAncestor(pNode, pAncestor, new LinkedHashSet<>());
   }
 
+  public Collection<Node> getTransitivePredecessors(Node pNode) {
+    Node entry = getEntry().orElseThrow();
+    return transitivePredecessorsUntilAncestor(pNode, entry, new LinkedHashSet<>());
+  }
+
   private Collection<Node> transitivePredecessorsUntilAncestor(Node pNode, Node pAncestor, Set<Node> pDoneSet) {
     Collection<Node> predecessors = new LinkedHashSet<>();
-    predecessors.add(pNode);
     for (Node node : getPredecessors(pNode)) {
       if (!pDoneSet.contains(node)) {
         predecessors.add(node);

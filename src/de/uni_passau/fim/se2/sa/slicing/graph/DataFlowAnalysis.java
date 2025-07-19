@@ -1,10 +1,15 @@
 package de.uni_passau.fim.se2.sa.slicing.graph;
 
+import br.usp.each.saeg.asm.defuse.DefUseAnalyzer;
+import br.usp.each.saeg.asm.defuse.DefUseFrame;
 import br.usp.each.saeg.asm.defuse.Variable;
-import java.util.Collection;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 /** Provides a simple data-flow analysis. */
 class DataFlowAnalysis {
@@ -23,7 +28,11 @@ class DataFlowAnalysis {
   static Collection<Variable> usedBy(
       String pOwningClass, MethodNode pMethodNode, AbstractInsnNode pInstruction)
       throws AnalyzerException {
-    throw new UnsupportedOperationException("Implement me");
+    DefUseFrame frame = getCorrespondingDefUseFrame(pOwningClass, pMethodNode, pInstruction);
+    if (frame == null) {
+      return Collections.emptyList();
+    }
+    return new HashSet<>(frame.getUses());
   }
 
   /**
@@ -38,6 +47,25 @@ class DataFlowAnalysis {
   static Collection<Variable> definedBy(
       String pOwningClass, MethodNode pMethodNode, AbstractInsnNode pInstruction)
       throws AnalyzerException {
-    throw new UnsupportedOperationException("Implement me");
+    DefUseFrame frame = getCorrespondingDefUseFrame(pOwningClass, pMethodNode, pInstruction);
+    if (frame == null) {
+      return Collections.emptyList();
+    }
+    return new HashSet<>(frame.getDefinitions());
+  }
+
+  private static DefUseFrame getCorrespondingDefUseFrame(String pOwningClass, MethodNode pMethodNode, AbstractInsnNode pInstruction) throws AnalyzerException {
+    if (pInstruction == null) {
+      return null;
+    }
+
+    DefUseAnalyzer analyzer = new DefUseAnalyzer();
+    DefUseFrame[] frames = analyzer.analyze(pOwningClass, pMethodNode);
+    int index = pMethodNode.instructions.indexOf(pInstruction);
+    if (index < 0 || frames[index] == null) {
+      return null;
+    }
+
+    return frames[index];
   }
 }
