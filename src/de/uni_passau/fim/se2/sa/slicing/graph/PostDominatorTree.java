@@ -32,7 +32,7 @@ public class PostDominatorTree extends Graph {
     Node entry = reversedCFG.getEntry().orElseThrow(
             () -> new IllegalStateException("Entry node isn't present in the reversed CFG")
     );
-    List<Node> allNodes = NodeSorter.sortPostDominatorOrder(reversedCFG);
+    List<Node> allNodes = NodeSorter.sortReversedCFGInPostDominatorOrder(reversedCFG);
 
     Map<Node, Set<Node>> postDominators = initializePostDominators(allNodes, entry);
 
@@ -99,8 +99,7 @@ public class PostDominatorTree extends Graph {
         // Get successors in original CFG
         Set<Node> successors = new HashSet<>(cfg.getSuccessors(n));
 
-        // Ordering matters for deterministic output
-        List<Node> allNodesInCFGOrder = new ArrayList<>(NodeSorter.sortCFGOrder(cfg));
+        List<Node> allNodesInCFGOrder = new ArrayList<>(cfg.getNodes());
         // Intersect post-dominator sets of all successors
         Set<Node> newPostDom = new LinkedHashSet<>(allNodesInCFGOrder);
         for (Node s : successors) {
