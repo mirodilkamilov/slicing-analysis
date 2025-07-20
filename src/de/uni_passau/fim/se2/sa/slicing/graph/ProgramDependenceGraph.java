@@ -5,6 +5,9 @@ import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.Set;
 
 /** Provides an analysis that calculates the program-dependence graph. */
@@ -78,9 +81,22 @@ public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
   /** {@inheritDoc} */
   @Override
   public Set<Node> backwardSlice(Node pCriterion) {
-    // TODO Implement me
-//    throw new UnsupportedOperationException("Implement me");
     computeResult();
-    return Set.of();
+    Set<Node> slice = new HashSet<>();
+    Deque<Node> worklist = new ArrayDeque<>();
+
+    worklist.add(pCriterion);
+    slice.add(pCriterion);
+
+    while (!worklist.isEmpty()) {
+      Node current = worklist.poll();
+      for (Node pred : pdg.getPredecessors(current)) {
+        if (slice.add(pred)) { // Only add if not already in slice
+          worklist.add(pred);
+        }
+      }
+    }
+
+    return slice;
   }
 }
