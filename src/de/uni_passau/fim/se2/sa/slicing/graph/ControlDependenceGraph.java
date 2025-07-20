@@ -52,6 +52,7 @@ public class ControlDependenceGraph extends Graph {
       pCDG.addNode(target);
       Collection<Node> visitedNodes = pPDT.getTransitivePredecessorsUntilAncestor(target, leastCommonAncestor);
       pCDG.addNode(source);
+      pCDG.addEdge(source, target);
       for (Node n : visitedNodes) {
         pCDG.addNode(n);
         pCDG.addEdge(source, n);
