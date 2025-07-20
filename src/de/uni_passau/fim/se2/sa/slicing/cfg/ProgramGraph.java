@@ -145,6 +145,39 @@ public class ProgramGraph {
     return sb.toString();
   }
 
+  public static ProgramGraph fromString(String input) {
+    ProgramGraph graph = new ProgramGraph();
+    Map<String, Node> nodes = new HashMap<>();
+
+    String[] lines = input.split("\n");
+    for (String line : lines) {
+      line = line.trim();
+      if (line.startsWith("digraph") || line.equals("{") || line.equals("}")) {
+        continue;
+      }
+      if (line.contains("->")) {
+        String[] parts = line.split("->");
+        String fromLabel = parts[0].replace("\"", "").trim();
+        String toLabel = parts[1].replace("\"", "").trim();
+
+        Node fromNode = nodes.computeIfAbsent(fromLabel, label -> {
+          Node n = new Node(label);
+          graph.addNode(n);
+          return n;
+        });
+
+        Node toNode = nodes.computeIfAbsent(toLabel, label -> {
+          Node n = new Node(label);
+          graph.addNode(n);
+          return n;
+        });
+
+        graph.addEdge(fromNode, toNode);
+      }
+    }
+    return graph;
+  }
+
   public Collection<Node> getTransitivePredecessorsUntilAncestor(Node pNode, Node pAncestor) {
     return transitivePredecessorsUntilAncestor(pNode, pAncestor, new LinkedHashSet<>());
   }
