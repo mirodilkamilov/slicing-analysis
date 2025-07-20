@@ -1,5 +1,8 @@
 package de.uni_passau.fim.se2.sa.slicing;
 
+import de.uni_passau.fim.se2.sa.slicing.cfg.Node;
+import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
+import de.uni_passau.fim.se2.sa.slicing.coverage.CoverageTracker;
 import de.uni_passau.fim.se2.sa.slicing.graph.ProgramDependenceGraph;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
@@ -8,6 +11,7 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 
 public class SlicerUtil {
 
@@ -45,7 +49,27 @@ public class SlicerUtil {
      * @return The simplified program dependence graph.
      */
     public static ProgramDependenceGraph simplify(final ProgramDependenceGraph pPDG) {
-        // TODO Implement simplification of program-dependence graph for dynamic slicing
-        throw new UnsupportedOperationException("Simplification of PDG not implemented");
+        ProgramGraph fullPDG = pPDG.computeResult();
+        Set<Integer> visitedLines = CoverageTracker.getVisitedLines();
+
+        ProgramGraph simplifiedGraph = new ProgramGraph();
+
+        // Copy only nodes corresponding to visited lines
+        for (Node node : fullPDG.getNodes()) {
+            if (visitedLines.contains(node.getLineNumber())) {
+                simplifiedGraph.addNode(node);
+            }
+        }
+
+        // Copy edges between kept nodes only
+        for (Node source : simplifiedGraph.getNodes()) {
+            for (Node target : fullPDG.getSuccessors(source)) {
+                if (simplifiedGraph.getNodes().contains(target)) {
+                    simplifiedGraph.addEdge(source, target);
+                }
+            }
+        }
+
+        return new ProgramDependenceGraph(simplifiedGraph);
     }
 }
