@@ -4,8 +4,11 @@ import org.objectweb.asm.*;
 
 class InstrumentationAdapter extends ClassVisitor {
 
-  InstrumentationAdapter(int pAPI, ClassWriter pClassWriter) {
+  private final String className;
+
+  InstrumentationAdapter(int pAPI, ClassWriter pClassWriter, String className) {
     super(pAPI, pClassWriter);
+    this.className = className;
   }
 
   @Override
