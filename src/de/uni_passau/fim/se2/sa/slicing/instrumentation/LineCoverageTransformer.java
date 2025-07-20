@@ -30,7 +30,7 @@ public class LineCoverageTransformer implements ClassFileTransformer {
     try {
       ClassReader cr = new ClassReader(pClassFileBuffer);
       ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES);
-      ClassVisitor cv = new InstrumentationAdapter(Opcodes.ASM9, cw, pClassName);
+      ClassVisitor cv = new InstrumentationAdapter(Opcodes.ASM9, cw);
 
       cr.accept(cv, ClassReader.EXPAND_FRAMES);
 

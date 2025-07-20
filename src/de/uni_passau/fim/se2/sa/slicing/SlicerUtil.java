@@ -1,6 +1,13 @@
 package de.uni_passau.fim.se2.sa.slicing;
 
 import de.uni_passau.fim.se2.sa.slicing.graph.ProgramDependenceGraph;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+
+import java.lang.reflect.Method;
 
 public class SlicerUtil {
 
@@ -11,8 +18,23 @@ public class SlicerUtil {
      * @param testCase  The name of the test case to be executed.
      */
     public static void executeTest(String className, String testCase) {
-        // TODO Implement execution of test method here
-        throw new UnsupportedOperationException("Execution of test method missing");
+        try {
+            String testClassName = className + "Test";
+            Class<?> testClass = Class.forName(testClassName);
+            Method method = testClass.getDeclaredMethod(testCase);
+
+            LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                    .selectors(DiscoverySelectors.selectMethod(testClass, method))
+                    .build();
+
+            Launcher launcher = LauncherFactory.create();
+
+            launcher.execute(request);
+
+
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            throw new RuntimeException("Test class or method not found", e);
+        }
     }
 
     /**

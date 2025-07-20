@@ -4,11 +4,8 @@ import org.objectweb.asm.*;
 
 class InstrumentationAdapter extends ClassVisitor {
 
-  private final String className;
-
-  InstrumentationAdapter(int pAPI, ClassWriter pClassWriter, String className) {
+  InstrumentationAdapter(int pAPI, ClassWriter pClassWriter) {
     super(pAPI, pClassWriter);
-    this.className = className;
   }
 
   @Override
@@ -22,7 +19,7 @@ class InstrumentationAdapter extends ClassVisitor {
         mv.visitLdcInsn(line);
         mv.visitMethodInsn(
                 Opcodes.INVOKESTATIC,
-                "CoverageTracker",  // Instrumentation target class
+                "CoverageTracker",
                 "trackLineVisit",
                 "(I)V",
                 false
