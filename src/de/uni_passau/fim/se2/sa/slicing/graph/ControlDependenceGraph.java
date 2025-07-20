@@ -11,11 +11,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ControlDependenceGraph extends Graph {
-  private PostDominatorTree pdt = new PostDominatorTree(new ProgramGraph());
 
   ControlDependenceGraph(ClassNode pClassNode, MethodNode pMethodNode) {
     super(pClassNode, pMethodNode);
-    pdt = new PostDominatorTree(pClassNode, pMethodNode);
   }
 
   ControlDependenceGraph(ProgramGraph pCFG) {
@@ -32,6 +30,7 @@ public class ControlDependenceGraph extends Graph {
    */
   @Override
   public ProgramGraph computeResult() {
+    PostDominatorTree pdt = new PostDominatorTree(classNode, methodNode);
     ProgramGraph pPDT = pdt.computeResult();
     ProgramGraph pCDG = new ProgramGraph();
     Set<DefaultEdge> allEdges = cfg.getEdges();
