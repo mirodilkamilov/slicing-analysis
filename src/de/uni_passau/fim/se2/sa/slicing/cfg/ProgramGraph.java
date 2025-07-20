@@ -99,11 +99,11 @@ public class ProgramGraph {
     return graph.edgeSet();
   }
 
-  public boolean isEdgeReversedInOtherGraph(DefaultEdge edge, ProgramGraph otherGraph) {
+  public boolean postDominates(DefaultEdge edge, ProgramGraph pPDT) {
     Node source = graph.getEdgeSource(edge);
     Node target = graph.getEdgeTarget(edge);
 
-    return otherGraph.getSuccessors(target).contains(source);
+    return !pPDT.getTransitiveSuccessors(target).contains(source);
   }
 
   public Node getEdgeSource(DefaultEdge edge) {

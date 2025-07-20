@@ -37,7 +37,7 @@ public class ControlDependenceGraph extends Graph {
     Set<DefaultEdge> cfgEdgesNotInPdt = new HashSet<>();
 
     for (DefaultEdge edge : allEdges) {
-      if (!cfg.isEdgeReversedInOtherGraph(edge, pPDT)) {
+      if (cfg.postDominates(edge, pPDT)) {
         cfgEdgesNotInPdt.add(edge);
       }
     }
