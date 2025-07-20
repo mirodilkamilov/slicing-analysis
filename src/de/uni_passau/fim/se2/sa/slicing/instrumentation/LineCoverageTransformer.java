@@ -26,9 +26,6 @@ public class LineCoverageTransformer implements ClassFileTransformer {
     if (isIgnored(pClassName)) {
       return pClassFileBuffer;
     }
-    if (isIgnored(pClassName)) {
-      return pClassFileBuffer; // Skip classes we don’t want to instrument
-    }
 
     try {
       ClassReader cr = new ClassReader(pClassFileBuffer);
