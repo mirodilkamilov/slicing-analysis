@@ -103,7 +103,7 @@ public class ProgramGraph {
     Node source = graph.getEdgeSource(edge);
     Node target = graph.getEdgeTarget(edge);
 
-    return !pPDT.getTransitiveSuccessors(target).contains(source);
+    return pPDT.getTransitiveSuccessors(target).contains(source);
   }
 
   public Node getEdgeSource(DefaultEdge edge) {

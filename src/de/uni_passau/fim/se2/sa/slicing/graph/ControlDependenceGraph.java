@@ -37,7 +37,7 @@ public class ControlDependenceGraph extends Graph {
     Set<DefaultEdge> cfgEdgesNotInPdt = new HashSet<>();
 
     for (DefaultEdge edge : allEdges) {
-      if (cfg.postDominates(edge, pPDT)) {
+      if (!cfg.postDominates(edge, pPDT)) {
         cfgEdgesNotInPdt.add(edge);
       }
     }
@@ -53,8 +53,10 @@ public class ControlDependenceGraph extends Graph {
       pCDG.addNode(source);
       pCDG.addEdge(source, target);
       for (Node n : visitedNodes) {
-        pCDG.addNode(n);
-        pCDG.addEdge(source, n);
+        if (!n.equals(leastCommonAncestor) || leastCommonAncestor.equals(source)) {
+          pCDG.addNode(n);
+          pCDG.addEdge(source, n);
+        }
       }
     }
 
