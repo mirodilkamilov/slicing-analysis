@@ -1,9 +1,6 @@
 package de.uni_passau.fim.se2.sa.slicing.instrumentation;
 
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.*;
 
 class InstrumentationAdapter extends ClassVisitor {
 
@@ -15,11 +12,19 @@ class InstrumentationAdapter extends ClassVisitor {
   public MethodVisitor visitMethod(
       int pAccess, String pName, String pDescriptor, String pSignature, String[] pExceptions) {
     MethodVisitor mv = super.visitMethod(pAccess, pName, pDescriptor, pSignature, pExceptions);
-    return new MethodVisitor(api, mv) {
+    return new MethodVisitor(Opcodes.ASM9, mv) {
       @Override
-      public void visitLineNumber(int pLine, Label pStart) {
-        // TODO Implement me
-        throw new UnsupportedOperationException("Implement me");
+      public void visitLineNumber(int line, Label start) {
+        super.visitLineNumber(line, start);
+        mv.visitLdcInsn(pName);
+        mv.visitLdcInsn(line);
+        mv.visitMethodInsn(
+                Opcodes.INVOKESTATIC,
+                "CoverageTracker",  // Instrumentation target class
+                "trackLineVisit",
+                "(Ljava/lang/String;I)V",
+                false
+        );
       }
     };
   }
