@@ -30,7 +30,7 @@ public class ControlDependenceGraph extends Graph {
    */
   @Override
   public ProgramGraph computeResult() {
-    PostDominatorTree pdt = new PostDominatorTree(classNode, methodNode);
+    PostDominatorTree pdt = new PostDominatorTree(cfg);
     ProgramGraph pPDT = pdt.computeResult();
     ProgramGraph pCDG = new ProgramGraph();
     Set<DefaultEdge> allEdges = cfg.getEdges();
