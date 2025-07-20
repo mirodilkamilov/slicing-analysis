@@ -20,9 +20,9 @@ class InstrumentationAdapter extends ClassVisitor {
         mv.visitLdcInsn(line);
         mv.visitMethodInsn(
                 Opcodes.INVOKESTATIC,
-                "LineCoverageTracker",  // Instrumentation target class
+                "CoverageTracker",  // Instrumentation target class
                 "trackLineVisit",
-                "(Ljava/lang/String;I)V",
+                "(I)V",
                 false
         );
       }
