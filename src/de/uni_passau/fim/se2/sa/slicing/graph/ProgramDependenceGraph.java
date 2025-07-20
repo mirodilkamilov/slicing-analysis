@@ -46,27 +46,25 @@ public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
     if (pdg != null) {
       return pdg;
     }
+    if (cdg == null || ddg == null) {
+      throw new IllegalStateException("CDG and DDG must be computed before building PDG");
+    }
 
     pdg = new ProgramGraph();
 
-    // Step 1: Add all nodes from CDG
-    for (Node node : cdg.getNodes()) {
+    // Step 1 — Add all nodes from the CFG (or from CDG/DDG since they are based on CFG)
+    for (Node node : cfg.getNodes()) {
       pdg.addNode(node);
     }
 
-    // Step 2: Add all nodes from DDG
-    for (Node node : ddg.getNodes()) {
-      pdg.addNode(node);
-    }
-
-    // Step 3: Add all edges from CDG
+    // Step 2 — Add all edges from CDG
     for (Node source : cdg.getNodes()) {
       for (Node target : cdg.getSuccessors(source)) {
         pdg.addEdge(source, target);
       }
     }
 
-    // Step 4: Add all edges from DDG
+    // Step 3 — Add all edges from DDG
     for (Node source : ddg.getNodes()) {
       for (Node target : ddg.getSuccessors(source)) {
         pdg.addEdge(source, target);
@@ -80,6 +78,8 @@ public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
   @Override
   public Set<Node> backwardSlice(Node pCriterion) {
     // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+//    throw new UnsupportedOperationException("Implement me");
+    computeResult();
+    return Set.of();
   }
 }

@@ -136,6 +136,6 @@ public class DataDependenceGraph extends Graph {
       }
     }
 
-    return new ProgramGraph();
+    return pDDG;
   }
 }
