@@ -36,6 +36,10 @@ public class ControlDependenceGraph extends Graph {
     Set<DefaultEdge> allEdges = cfg.getEdges();
     Set<DefaultEdge> cfgEdgesNotInPdt = new HashSet<>();
 
+    for (Node n : cfg.getNodes()) {
+      pCDG.addNode(n);
+    }
+
     for (DefaultEdge edge : allEdges) {
       if (!cfg.postDominates(edge, pPDT)) {
         cfgEdgesNotInPdt.add(edge);
@@ -48,13 +52,10 @@ public class ControlDependenceGraph extends Graph {
       Node leastCommonAncestor = pPDT.getLeastCommonAncestor(source, target);
 
       // TODO: there might be two predecessors and two leastCommonAncestors (while visiting upwards)
-      pCDG.addNode(target);
       Collection<Node> visitedNodes = pPDT.getTransitivePredecessorsUntilAncestor(target, leastCommonAncestor);
-      pCDG.addNode(source);
       pCDG.addEdge(source, target);
       for (Node n : visitedNodes) {
         if (!n.equals(leastCommonAncestor) || leastCommonAncestor.equals(source)) {
-          pCDG.addNode(n);
           pCDG.addEdge(source, n);
         }
       }
