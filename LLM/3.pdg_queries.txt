@@ -1,0 +1,126 @@
+Q:
+Now build for me Program Dependence Graph
+
+/** Provides an analysis that calculates the program-dependence graph. */
+public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
+
+  private ProgramGraph pdg;
+  private final ProgramGraph cdg;
+  private final ProgramGraph ddg;
+
+  public ProgramDependenceGraph(ClassNode pClassNode, MethodNode pMethodNode) {
+    super(pClassNode, pMethodNode);
+    pdg = null;
+
+    if (cfg != null) {
+      cdg = new ControlDependenceGraph(pClassNode, pMethodNode).computeResult();
+      ddg = new DataDependenceGraph(pClassNode, pMethodNode).computeResult();
+    } else {
+      cdg = null;
+      ddg = null;
+    }
+  }
+
+  public ProgramDependenceGraph(ProgramGraph pProgramGraph) {
+    super(null);
+    pdg = pProgramGraph;
+    cdg = null;
+    ddg = null;
+  }
+
+  /**
+   * Computes the program-dependence graph from a control-flow graph.
+   *
+   * <p>You may wish to use the {@link ControlDependenceGraph} and {@link DataDependenceGraph} you
+   * have already implemented to support computing the program-dependence graph.
+   *
+   * @return A program-dependence graph.
+   */
+  @Override
+  public ProgramGraph computeResult() {
+    // TODO Implement me
+    throw new UnsupportedOperationException("Implement me");
+  }
+
+A:
+You're almost there!
+To build the **Program Dependence Graph (PDG)**, you simply need to **merge the CDG and DDG** — because PDG is just their union.
+
+---
+
+## ✅ What does PDG contain?
+
+* **All nodes from the Control Dependence Graph (CDG)**
+* **All nodes from the Data Dependence Graph (DDG)**
+* **All edges from both CDG and DDG**
+
+---
+
+## ✅ Step-by-Step PDG Building Plan:
+
+1. Create a new **ProgramGraph** for PDG.
+2. Add **all nodes** from CDG and DDG into PDG.
+3. Add **all edges** from CDG into PDG.
+4. Add **all edges** from DDG into PDG.
+5. Store and return the PDG.
+
+---
+
+## ✅ Full Implementation for `computeResult()`
+
+```java
+@Override
+public ProgramGraph computeResult() {
+  if (pdg != null) {
+    return pdg;
+  }
+
+  pdg = new ProgramGraph();
+
+  // Step 1: Add all nodes from CDG
+  for (Node node : cdg.getNodes()) {
+    pdg.addNode(node);
+  }
+
+  // Step 2: Add all nodes from DDG
+  for (Node node : ddg.getNodes()) {
+    pdg.addNode(node);
+  }
+
+  // Step 3: Add all edges from CDG
+  for (Node source : cdg.getNodes()) {
+    for (Node target : cdg.getSuccessors(source)) {
+      pdg.addEdge(source, target);
+    }
+  }
+
+  // Step 4: Add all edges from DDG
+  for (Node source : ddg.getNodes()) {
+    for (Node target : ddg.getSuccessors(source)) {
+      pdg.addEdge(source, target);
+    }
+  }
+
+  return pdg;
+}
+```
+
+---
+
+## ✅ What this does:
+
+* ✅ Ensures **all nodes from both graphs** are in the PDG.
+* ✅ Ensures **all edges from both graphs** are merged.
+* ✅ Prevents duplication — assuming your `ProgramGraph.addNode()` handles node uniqueness correctly.
+
+---
+
+## ✅ Optional Sanity Check:
+
+If your `ProgramGraph` allows duplicate edges (which yours does, based on the builder config), you don't need to deduplicate edges.
+
+---
+
+## ✅ ✅ You’re now ready to slice on this combined PDG!
+
+If you want, I can help you implement the **slicing algorithm on this PDG** next!
