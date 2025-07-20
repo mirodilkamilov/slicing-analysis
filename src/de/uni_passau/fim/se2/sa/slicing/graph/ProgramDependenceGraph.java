@@ -2,9 +2,10 @@ package de.uni_passau.fim.se2.sa.slicing.graph;
 
 import de.uni_passau.fim.se2.sa.slicing.cfg.Node;
 import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
-import java.util.Set;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+
+import java.util.Set;
 
 /** Provides an analysis that calculates the program-dependence graph. */
 public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
@@ -52,26 +53,20 @@ public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
 
     pdg = new ProgramGraph();
 
-    // Step 1: Add all nodes from CDG
-    for (Node node : cdg.getNodes()) {
-      pdg.addNode(node);
-    }
-
-    // Step 2: Add all nodes from DDG
-    for (Node node : ddg.getNodes()) {
-      pdg.addNode(node);
-    }
-
-    // Step 3: Add all edges from CDG
+    // Add nodes and edges from CDG
     for (Node source : cdg.getNodes()) {
-      for (Node target : cdg.getSuccessors(source)) {
+      pdg.addNode(source);
+      for (Node target : cfg.getSuccessors(source)) {
+        pdg.addNode(target);
         pdg.addEdge(source, target);
       }
     }
 
-    // Step 4: Add all edges from DDG
+    // Add nodes and edges from DDG
     for (Node source : ddg.getNodes()) {
+      pdg.addNode(source);
       for (Node target : ddg.getSuccessors(source)) {
+        pdg.addNode(target);
         pdg.addEdge(source, target);
       }
     }
