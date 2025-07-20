@@ -19,7 +19,7 @@ class InstrumentationAdapter extends ClassVisitor {
         mv.visitLdcInsn(line);
         mv.visitMethodInsn(
                 Opcodes.INVOKESTATIC,
-                "CoverageTracker",
+                "de/uni_passau/fim/se2/sa/slicing/coverage/CoverageTracker",
                 "trackLineVisit",
                 "(I)V",
                 false

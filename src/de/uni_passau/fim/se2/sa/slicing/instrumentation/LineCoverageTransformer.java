@@ -35,7 +35,6 @@ public class LineCoverageTransformer implements ClassFileTransformer {
       cr.accept(cv, ClassReader.EXPAND_FRAMES);
 
       return cw.toByteArray();
-
     } catch (Exception e) {
       e.printStackTrace();
       return pClassFileBuffer; // Fallback to original bytecode on error

@@ -34,8 +34,6 @@ public class SlicerUtil {
             Launcher launcher = LauncherFactory.create();
 
             launcher.execute(request);
-
-
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Test class or method not found", e);
         }
