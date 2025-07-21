@@ -25,16 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DataFlowAnalysisTest {
 
     @Mock
-    DefUseAnalyzer mockAnalyzer;
-
-    @Mock
-    DefUseFrame mockFrame;
-
-    @Mock
     MethodNode mockMethodNode;
-
-    @Mock
-    AbstractInsnNode mockInsnNode;
 
     @Test
     void testDefinedBy_WhenInstructionIsNull_ShouldReturnEmpty() throws Exception {
@@ -44,8 +35,6 @@ class DataFlowAnalysisTest {
 
     @Test
     void testDefinedBy_WithValidMethodSetup_ShouldNotThrow() throws Exception {
-        Variable var = new Local(Type.INT_TYPE, 0);
-
         InsnList insnList = new InsnList();
         AbstractInsnNode nopInsn = new InsnNode(Opcodes.NOP);
         insnList.add(nopInsn);
