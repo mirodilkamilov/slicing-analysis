@@ -1,15 +1,11 @@
 package de.uni_passau.fim.se2.sa.slicing.graph;
 
-import br.usp.each.saeg.asm.defuse.DefUseAnalyzer;
-import br.usp.each.saeg.asm.defuse.DefUseFrame;
-import br.usp.each.saeg.asm.defuse.Local;
 import br.usp.each.saeg.asm.defuse.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;

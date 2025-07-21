@@ -11,10 +11,12 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class DataDependenceGraphTest {
 
@@ -52,6 +54,8 @@ public class DataDependenceGraphTest {
                 .map(Node::toString)
                 .collect(Collectors.toSet());
         assertEquals(expectedNodeIds, actualNodeIds, "Mismatch in expected nodes");
+
+        assertTimeoutPreemptively(Duration.ofMillis(100), ddg::computeResult);
     }
 
 }
