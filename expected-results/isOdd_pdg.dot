@@ -1,0 +1,9 @@
+digraph ProgramGraph {
+"LABEL1  line number: -1"->"IFEQ14  line number: 7"
+"ISTORE8  line number: 6"->"IRETURN20  line number: 10"
+"IFEQ14  line number: 7"->"LABEL15  line number: 7"
+"IFEQ14  line number: 7"->"LINENUMBER 821  line number: 8"
+"IFEQ14  line number: 7"->"ICONST_122  line number: 8"
+"IFEQ14  line number: 7"->"ISTORE23  line number: 8"
+"ISTORE23  line number: 8"->"IRETURN20  line number: 10"
+}
