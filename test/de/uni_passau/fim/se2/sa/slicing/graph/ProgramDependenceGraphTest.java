@@ -2,6 +2,7 @@ package de.uni_passau.fim.se2.sa.slicing.graph;
 
 import com.google.common.base.Preconditions;
 import de.uni_passau.fim.se2.sa.slicing.cfg.CFGLocalVariableTableVisitor;
+import de.uni_passau.fim.se2.sa.slicing.cfg.Node;
 import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
 import org.jgrapht.alg.util.Pair;
 import org.junit.jupiter.api.Test;
@@ -15,10 +16,23 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ProgramDependenceGraphTest {
+
+    @Test
+    void testConstructorWithPrecomputedPDG_ShouldReturnPrecomputedResult() {
+        ProgramGraph mockPDG = new ProgramGraph();
+        Node nodeA = new Node("A");
+        Node nodeB = new Node("B");
+        mockPDG.addNode(nodeA);
+        mockPDG.addNode(nodeB);
+        mockPDG.addEdge(nodeA, nodeB);
+
+        ProgramDependenceGraph pdg = new ProgramDependenceGraph(mockPDG);
+        ProgramGraph result = pdg.computeResult();
+        assertEquals(mockPDG, result, "PDG should return the precomputed instance");
+    }
 
     @Test
     void testComputeResult_IsOddCFG_ShouldReturnPDG() throws IOException {
@@ -62,6 +76,39 @@ public class ProgramDependenceGraphTest {
 
         assertTimeoutPreemptively(Duration.ofMillis(100), pdg::computeResult);
     }
+
+    @Test
+    void testBackwardSlice_ShouldReturnTransitivePredecessorsIncludingCriterion() {
+        ProgramGraph pdgGraph = new ProgramGraph();
+
+        Node a = new Node("A");
+        Node b = new Node("B");
+        Node c = new Node("C");
+
+        pdgGraph.addNode(a);
+        pdgGraph.addNode(b);
+        pdgGraph.addNode(c);
+
+        pdgGraph.addEdge(a, b);  // A → B
+        pdgGraph.addEdge(b, c);  // B → C
+
+        ProgramDependenceGraph pdg = new ProgramDependenceGraph(pdgGraph);
+        Set<Node> slice = pdg.backwardSlice(c);
+        assertEquals(Set.of(a, b, c), slice, "Backward slice should include transitive predecessors and criterion");
+    }
+
+    @Test
+    void testBackwardSlice_OnIsolatedNode_ShouldReturnSingletonSet() {
+        ProgramGraph pdgGraph = new ProgramGraph();
+
+        Node isolated = new Node("Isolated");
+        pdgGraph.addNode(isolated);
+
+        ProgramDependenceGraph pdg = new ProgramDependenceGraph(pdgGraph);
+        Set<Node> slice = pdg.backwardSlice(isolated);
+        assertEquals(Set.of(isolated), slice, "Backward slice of isolated node should only include itself");
+    }
+
 }
 
 

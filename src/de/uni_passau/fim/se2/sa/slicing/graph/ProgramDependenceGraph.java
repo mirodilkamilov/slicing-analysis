@@ -68,9 +68,7 @@ public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
 
     // Add nodes and edges from DDG
     for (Node source : ddg.getNodes()) {
-      pdg.addNode(source);
       for (Node target : ddg.getSuccessors(source)) {
-        pdg.addNode(target);
         pdg.addEdge(source, target);
       }
     }
