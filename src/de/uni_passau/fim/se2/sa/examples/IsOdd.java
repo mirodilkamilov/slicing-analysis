@@ -10,4 +10,5 @@ public class IsOdd {
         return isOdd;
     }
 }
-// -c de.uni_passau.fim.se2.sa.examples.IsOdd -m isOdd:(I)Z -v isOdd -l 8
+// For static analysis: ./run.sh -c de.uni_passau.fim.se2.sa.examples.IsOdd -m "isOdd:(I)Z" -v isOdd -l 10 -s src/de/uni_passau/fim/se2/sa/examples/IsOdd.java
+// For dynamic analysis: ./run.sh -c de.uni_passau.fim.se2.sa.examples.IsOdd -m "isOdd:(I)Z" -v isOdd -l 10 -d isOdd_EvenNumber_ShouldReturnFalse -s src/de/uni_passau/fim/se2/sa/examples/IsOdd.java

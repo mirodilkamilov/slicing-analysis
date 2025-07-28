@@ -50,7 +50,43 @@ public class IsOdd {
         return isOdd;
     }
 }
-// -c de.uni_passau.fim.se2.sa.examples.IsOdd -m isOdd:(I)Z -v isOdd -l 8
+```
+
+*Static analysis example:*
+
+```bash
+./run.sh -c de.uni_passau.fim.se2.sa.examples.IsOdd -m "isOdd:(I)Z" -v isOdd -l 10
+(line:   -1, id:    1)  L0
+(line:    6, id:    8)  ISTORE 3
+(line:    7, id:   14)  IFEQ L0
+(line:    8, id:   23)  ISTORE 3
+(line:   10, id:   20)  IRETURN
+```
+
+Or alternatively with actual code lines:
+
+```bash
+./run.sh -c de.uni_passau.fim.se2.sa.examples.IsOdd -m "isOdd:(I)Z" -v isOdd -l 10 -s src/de/uni_passau/fim/se2/sa/examples/IsOdd.java
+public boolean isOdd(int num) {
+boolean isOdd = false;
+if (num % 2 != 0) {
+isOdd = true;
+return isOdd;
+```
+
+For *dynamic analysis with even number* run with following command:
+
+```bash
+./run.sh -c de.uni_passau.fim.se2.sa.examples.IsOdd -m "isOdd:(I)Z" -v isOdd -l 10 -d isOdd_EvenNumber_ShouldReturnFalse
+(line:    6, id:    8)  ISTORE 3
+(line:   10, id:   20)  IRETURN
+```
+
+Or alternatively with actual code lines:
+```bash
+./run.sh -c de.uni_passau.fim.se2.sa.examples.IsOdd -m "isOdd:(I)Z" -v isOdd -l 10 -d isOdd_EvenNumber_ShouldReturnFalse -s src/de/uni_passau/fim/se2/sa/examples/IsOdd.java
+boolean isOdd = false;
+return isOdd;
 ```
 
 Corresponding Control Flow Graph (CFG):
