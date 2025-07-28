@@ -5,10 +5,7 @@ import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /** Provides an analysis that calculates the program-dependence graph. */
 public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
@@ -80,6 +77,14 @@ public class ProgramDependenceGraph extends Graph implements Sliceable<Node> {
   @Override
   public Set<Node> backwardSlice(Node pCriterion) {
     computeResult();
+
+    // Check if the criterion exists in the graph
+    if (!pdg.getNodes().contains(pCriterion)) {
+      System.err.println("Warning: Slicing criterion at line " +
+              pCriterion.getLineNumber() + " was not executed during dynamic run.");
+      return Collections.emptySet();
+    }
+
     Set<Node> slice = new HashSet<>();
     Deque<Node> worklist = new ArrayDeque<>();
 

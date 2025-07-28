@@ -2,40 +2,26 @@ package de.uni_passau.fim.se2.sa.slicing;
 
 import com.google.common.base.Preconditions;
 import de.uni_passau.fim.se2.sa.slicing.agent.SlicerAgent;
-import de.uni_passau.fim.se2.sa.slicing.cfg.CFGLocalVariableTableVisitor;
-import de.uni_passau.fim.se2.sa.slicing.cfg.LocalVariable;
-import de.uni_passau.fim.se2.sa.slicing.cfg.LocalVariableTable;
-import de.uni_passau.fim.se2.sa.slicing.cfg.Node;
-import de.uni_passau.fim.se2.sa.slicing.cfg.ProgramGraph;
-import de.uni_passau.fim.se2.sa.slicing.coverage.CoverageTracker;
+import de.uni_passau.fim.se2.sa.slicing.cfg.*;
 import de.uni_passau.fim.se2.sa.slicing.graph.ProgramDependenceGraph;
 import de.uni_passau.fim.se2.sa.slicing.output.ByteCodeExtractor;
 import de.uni_passau.fim.se2.sa.slicing.output.Extractor;
 import de.uni_passau.fim.se2.sa.slicing.output.SourceLineExtractor;
 import de.uni_passau.fim.se2.sa.slicing.output.XMLFileExtractor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
+import picocli.CommandLine;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.engine.discovery.MethodSelector;
-import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
-import org.junit.platform.launcher.core.LauncherFactory;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.IincInsnNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
-import picocli.CommandLine;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Spec;
 
 public final class SlicerMain implements Callable<Integer> {
 
@@ -183,8 +169,41 @@ public final class SlicerMain implements Callable<Integer> {
       }
     }
 
+    // If no store found, look for the actual consumer of the variable
+    // (like IRETURN that consumes the loaded value)
+    Node loadNode = null;
+    for (final Node successor : pCFG.getSuccessorsUntilNextLineNumber(cfgNode)) {
+      if (successor.getInstruction() instanceof VarInsnNode varInsnNode
+              && isLoadOpCode(successor.getInstruction().getOpcode())) {
+
+        final int idx = varInsnNode.var;
+        final Optional<LocalVariable> entry = pLocalVariableTable.getEntry(idx);
+        if (entry.isPresent() && entry.get().name().equals(variableName)) {
+          loadNode = successor;
+          break;
+        }
+      }
+    }
+
+    // If we found a load, find what consumes it (like IRETURN)
+    if (loadNode != null) {
+      for (final Node successor : pCFG.getSuccessors(loadNode)) {
+        if (isReturnOpcode(successor.getInstruction().getOpcode())) return successor;
+      }
+      // If no specific consumer found, return the load itself
+      return loadNode;
+    }
+
     throw new IllegalStateException(
         "We were not able to determine a correct program location for the searched node.");
+  }
+
+  private boolean isReturnOpcode(final int pOpCode) {
+    return pOpCode == Opcodes.IRETURN
+        || pOpCode == Opcodes.ARETURN
+        || pOpCode == Opcodes.LRETURN
+        || pOpCode == Opcodes.FRETURN
+        || pOpCode == Opcodes.DRETURN;
   }
 
   private boolean isStoreOpCode(final int pOpCode) {
@@ -206,6 +225,12 @@ public final class SlicerMain implements Callable<Integer> {
 
   private boolean isFieldOpCode(final int pOpCode) {
     return pOpCode == Opcodes.PUTFIELD || pOpCode == Opcodes.PUTSTATIC;
+  }
+
+  private boolean isLoadOpCode(int opcode) {
+    return opcode == Opcodes.ILOAD || opcode == Opcodes.LLOAD ||
+            opcode == Opcodes.FLOAD || opcode == Opcodes.DLOAD ||
+            opcode == Opcodes.ALOAD;
   }
 
   // @formatter:off
